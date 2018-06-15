@@ -7,7 +7,7 @@ var upload = multer({ dest: '/tmp/' });
 
 app.post('/', upload.single('thumb'), function (req, res, next) {
   var payload = JSON.parse(req.body.payload);
-  console.log('Got webhook for', payload.event);
+  console.log('Got webhook event:', payload.event, 'from device:', payload.Player.uuid);
 
   // Identify Player
   if (payload.Player.uuid == process.env.PLAYER && payload.Metadata.type != 'track') {
