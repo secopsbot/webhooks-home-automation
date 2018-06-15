@@ -9,29 +9,31 @@ app.post('/', upload.single('thumb'), function (req, res, next) {
   var payload = JSON.parse(req.body.payload);
   console.log('Got webhook for', payload.event);
 
-  // Apple TV.
+  // Identify Player
   if (payload.Player.uuid == process.env.PLAYER && payload.Metadata.type != 'track') {
-    var options = {
-      method: 'PUT',
-      json: true,
-      url: 'https://winkapi.quirky.com/light_bulbs/' + process.env.BULB,
-      headers: { 'Authorization': 'Bearer ' + process.env.BEARER }
-    };
+
+  var action = '';
 
     if (payload.event == 'media.play' || payload.event == 'media.resume') {
       // Turn light off.
-      console.log('Turning light off.');
-      options.body = { desired_state: { powered: false } };
-      request(options);
+      action = 'lounge_lights_low';
+      console.log('Action: ' + action);
     } else if (payload.event == 'media.pause' || payload.event == 'media.stop') {
       // Turn light on.
-      console.log('Turning light on.');
-      options.body = { desired_state: { powered: true, brightness: 1.0 } };
-      request(options);
+      action = 'lounge_lights_high';
+      console.log('Action: ' + action);
     }
+
+    var options = {
+    method: 'GET',
+    url: 'https://maker.ifttt.com/trigger/' + action + '/with/key/' + process.env.IFTTT_MAKER_KEY,
+    };
+
+    request(options);
+
   }
 
   res.sendStatus(200);
 });
 
-app.listen(12000);
+app.listen(17605);
